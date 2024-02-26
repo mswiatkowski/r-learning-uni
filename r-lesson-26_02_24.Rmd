@@ -1,0 +1,123 @@
+---
+title: "r-lesson-26_02_24"
+author: "Marcin Świątkowski"
+date: "2024-02-26"
+output: html_document
+---
+
+# 26.02 Zajęcia organizacyjne
+
+Na ostatnich zajęciach będziemy robić projekt w sali.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cars}
+summary(cars)
+cars <- cars
+```
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+
+```{r}
+10+7
+12+2
+```
+
+
+```{r}
+a <- 12
+b <- 0
+c <- a + b
+d <- a/b
+atan(d)
+```
+
+
+```{r}
+a <- 1.9
+b <- -2L
+c <- 'zmienna c'
+d <- TRUE
+class(b)
+typeof(a)
+```
+
+
+```{r}
+a <- as.logical(b)
+```
+
+```{r}
+f <- c(1, 2, 3, 4, 5, 6)
+f
+g <- c(6, 5, 4, 3, 2, 1)
+g
+
+f + g
+g[c(1,2,3)]
+g[1] <- 6
+h <- g
+h[1] <- 6
+g
+```
+
+Statystyki opisowe
+
+```{r}
+
+f <- c(1, 2, 3, 4, 5, 6)
+g <- c(6, 5, 4, 3, 2, 1)
+
+summary(f)
+
+h <- seq(1, 10, 2)
+h <- sequence(5, 5, 0)
+z <- seq(from=1, to=4)
+y <- rep(z, each=2, times=4)
+```
+
+```{r}
+
+z <- c(1, 2, 3, 4, 5, 6, 7, 8)
+
+```
+
+```{r}
+library(tidyverse)
+library(rio)
+library(skimr)
+```
+
+```{r}
+diamonds <- diamonds
+head(diamonds)
+summary(diamonds)
+skim(diamonds)
+```
+
+
+```{r}
+mean(diamonds$price)
+class(diamonds$price)
+diamonds$price
+diamonds_expensive <- filter(diamonds, diamonds$price > mean(diamonds$price/2))
+
+diamonds_table = table(diamonds_expensive$clarity)
+diamonds_table
+
+```
+
+
+```{r}
+diamonds_size <- filter(diamonds, diamonds$x >= 5)
+median(diamonds_size$price)
+```
+
+
+
+
