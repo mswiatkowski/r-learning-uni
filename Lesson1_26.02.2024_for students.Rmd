@@ -1,0 +1,414 @@
+---
+title: "Lesson1"
+author: "Maria Varlamova"
+date: "4 April 2023"
+output: html_document
+---
+Na naszej pierwszej lekcji zapoznmy się z podstawowymi funkcjami. Pracujemy w dokumencie Markdown. Markdown to prosty składnia formatowania do tworzenia dokumentów HTML, PDF i MS Word. Poniżej znajduje się ciemniejszy obszar - chunk, w którym można wykonywać fragmenty kodu. Na białych obszarach, takich jak ten - można pisać dowolny tekst, R go ignoruje. Aby uruchomić polecenie, umieścisz wskaźnik na odpoweidnej linijce i naciśnij ctrl+enter. Jeśli chcesz uruchomić cały fragment - mały zielony trójkąt w prawym górnym rogu jest do twojej dyspozycji.
+
+```{r}
+10 + 7
+3 * 5
+17 %% 3
+
+```
+
+Oto lista funkcji 
+dodawanie: +
+
+odejmowanie: -
+
+mnożenie: *
+
+dzielenie: /
+
+potęgowanie: ^
+
+reszta z dzielenia: %%
+
+```{r}
+
+
+
+```
+
+Cała historia twoich eksperymentów jest zapisana w konsoli poniżej. Jeśli zniknęła, zmniejsz bieżące okno.
+
+Będzie ważne, aby później spojrzeć na konsolę, aby dowiedzieć się, czy nie wystąpiły błędy.
+
+
+Bardzo podstawową rzeczą i kamieniem węgielnym  w R jest przypisanie (assignment). Polecenie w formie nazwa <- obiekt pozwala zapisać obiekt i uzyskać do niego dostęp później za pomocą nazwy nazwa. Brzmi trudno, dużo łatwiej na przykładzie:
+
+```{r}
+a <- 22 # wprowadź liczbę 22 do a. Zwróć uwagę, że nic nie pojawiło się w konsoli, ale a pojawiło się w środowisku (Environment) (prawym górnym oknie)
+a # teraz prosimy program, aby pokazał nam, co jest w środku
+```
+
+Tutaj muszę przyznać, że = również doskonale zadziała jako <-, ale tak odróżniamy prawdziwych naukowców R od tych pod wpływem Pythona)
+
+Możemy zmienić wartość zmiennej, po prostu nadpisując ją
+
+```{r}
+c <- 5
+c
+
+c <- 9
+c
+```
+
+Proszę utworzyć zmienną b o wartości 10
+
+```{r}
+b <- 10
+```
+Nie zapomnij uruchomić kodu!
+
+Świetnie! Teraz możemy operować zmiennymi:
+
+```{r}
+a + b # wyniki są w konsoli
+
+sum <- a + b
+sum #teraz wyniki są zapisane
+```
+
+Pobawmy się trochę:
+```{r}
+c <- factorial(4)
+d <- 2^3
+c + d
+```
+
+Jestem pewna, że zawsze chciałiscie podzielić przez 0:
+```{r}
+x <- 1 / 0
+x
+```
+
+Co możemy zrobić z nieskończonością? hmmm, na przykład:
+
+```{r}
+1 / (x - 9)
+
+```
+
+Albo nawet tak, weźmy arcus tangens.
+
+```{r}
+ atan(x)
+``` 
+Inne funkcje trygonometryczne: sin(), cos(), tan(), asin(), acos(), atan() w przypadku, gdy chcesz powtórzyć program szkolny.
+
+Jeśli chcesz przeczytać o jakiejkolwiek funkcji, po prostu napisz jej nazwę z znakiem zapytania w konsoli:
+?sin()
+
+Tymczasem nasze wyniki wyglądają dokładnie jak pi/2
+ 
+```{r}
+ pi/2
+``` 
+ 
+
+Ok, idźmy dalej:
+
+Wśród głównych typów zmiennych znajdują się następujące:
+
+liczby z kropką lub bez, na przykład, 2.3 są nazywane numeric. R zapewnia około 15 do 17 cyfr po przecinku.
+
+liczby całkowite jak 2, - integer
+
+linie i tekst - character, obiekty tego typu są pisane w cudzysłowach
+
+zmienne logiczne FALSE -logical
+
+
+Inne użyteczne typy obejmują:
+
+- czynniki jak "mężczyzna" i "kobieta", zmienne kategoryczne, które mogą mieć ograniczoną liczbę odrębnych poziomów, uporządkowanych lub nieuporządkowanych. Czynniki są szczególnie użyteczne do modelowania statystycznego i analizy danych.  'factor'
+
+- data -  'as.Date'
+
+
+Plus dwie ważne grupy:
+
+Lista: Te zmienne są uporządkowanymi kolekcjami elementów, które mogą być różnych typów lub trybów.
+Ramka danych (dataframe): Te zmienne są używane do przechowywania danych tabelarycznych, gdzie każda kolumna może być innego typu lub trybu.
+
+Jest niezbędne zrozumienie tych typów zmiennych w R, ponieważ określają one operacje i funkcje, które możesz zastosować do danych przechowywanych w tych zmiennych.
+
+Utwórzmy zmienne wszystkich typów:
+```{r}
+num <- 4.8 #nazwa "num" to po prostu nazwa, mogłoby być również "jabłko"
+int <- 7L 
+str <- 'bye bye bye'
+log <- TRUE
+```
+
+Aby sprawdzić typ zmiennej, należy użyć funkcji class() lub typeof()
+```{r}
+class(int)
+typeof(int)
+```
+typeof() dostarcza informacji o fizycznym sposobie przechowywania danych, podczas gdy class() informuje nas o abstrakcyjnym typie danych, jak jest on interpretowany w kontekście funkcji i operacji w R. 
+
+Sprawdź typ wszystkich utworzonych powyżej zmiennych:
+ 
+```{r}
+
+class(num)
+class(str)
+class(log)
+
+```
+
+W przypadku, gdy chcesz zmienić typ, używasz as.jakiśnowytypktóregopotrzebujesz:
+
+```{r}
+class(int) #to jest integer
+int<-as.character(int) #O, potężny R, weź int, zrób z niego character i umieść go w obiekcie int w środowisku
+class(int) #teraz to jest character)
+int<-as.numeric(int)
+class(int) #teraz to jest numeric)
+int<-as.integer(int)
+class(int) #to znowu jest integer
+```
+
+Teraz o usuwaniu obiektów ze środowiska globalnego: Możesz je po prostu wyczyścić używając miotły, lub możesz użyć funkcji rm().
+
+Aby wydrukować listę tego, co znajduje się w twoim środowisku (w przypadku, gdy chcesz skopiować część do kolegi), możesz użyć ls()
+
+```{r}
+rm()#remove
+ls()
+rm(list = ls())
+```
+
+Należy używać rm() ostrożnie, ponieważ usunięcie obiektu jest nieodwracalne w ramach bieżącej sesji pracy (chociaż obiekt można odtworzyć, jeśli masz kod, który go wygenerował).
+
+Możesz także utworzyć wektor danych:
+
+```{r}
+A_vector <- c(7, 1, 4, 0, 5, -3)
+A_vector
+
+log_vector <- c(FALSE, TRUE, FALSE, FALSE)
+log_vector
+
+```
+
+
+Utwórz swój wektor B, zsumuj wektor A_vector i B, pomnóż je i weź iloczyn skalarny (operator %*%)
+
+```{r}
+
+
+
+```
+
+Jeśli potrzebujesz konkretnego elementu wektora - możesz wywołać go za pomocą pozycji w nawiasach kwadratowych []. Spróbujmy:
+
+```{r}
+A_vector[2] # O potężny R, pokaż mi drugi element!
+
+A_vector[2:4] # A teraz 3 elementy od drugiego do czwartego - pamiętaj, jak adresujesz kilka elementów pod rząd, będzie Ci to potrzebne później
+
+A_vector[c(1, 3, 5)] #A teraz elementy numer 1, 3 i 5
+
+A_vector
+
+A_vector[2] <- -3 # A teraz chcę, abyś R, zmienił drugi element wektora na -3.
+A_vector # Pokaż mi wyniki!
+
+
+```
+
+Oczywiście możesz znaleźć min, max, medianę i średnią swojego wektora (i nie tylko wektora, ale zacznijmy od danych później)
+
+```{r}
+# znajdź średnią tutaj
+median(A_vector)
+sum(A_vector)
+max(A_vector)
+#znajdź min tutaj
+
+```
+
+Inne przydatne funkcje statystyczne: mean(), sd(), var(), range(), sum(), quantile()
+
+Jeśli potrzebujesz wektora kolejnych liczb, możesz go stworzyć za pomocą polecenia seq.
+
+from - początek sekwencji
+to - koniec sekwencji
+by - krok
+len - długość sekwencji
+
+```{r}
+seq_vector1 <- seq(from = 1, to = 10, by = 1) #O potężny R, stwórz sekwencję od 1 do 10 z krokiem 1 i umieść ją w obiekcie seq_vector w globalnym środowisku
+seq_vector1
+
+seq_vector2 <- seq(from = 0, to = 1, len = 15)
+seq_vector2
+
+#stwórz tutaj własny wektor od 30 do 60 z krokiem 1.5
+```
+
+
+Jeśli potrzebujesz wektora powtarzających się liczb, możesz użyć polecenia rep z argumentami
+
+x to liczba lub wektor do powtórzenia
+times - liczba powtórzeń obiektu x
+len - długość wektora
+each - liczba powtórzeń każdego elementu x
+
+Spróbujmy stworzyć wektor (5,5,5,5,5,5) oraz (1,1,2,2,3,3,4,4,1,1,2,2,3,3,4,4). Powodzenia w próbach!
+```{r}
+
+vector1 <- rep(5, times = 6)
+
+# Tworzenie wektora (1,1,2,2,3,3,4,4,1,1,2,2,3,3,4,4)
+vector2 <- rep(c(1,2,3,4), each = 2, times = 2)
+
+```
+
+Wyobraź sobie, że potrzebujesz 300 losowych naturalnych liczb od 1 do 5 z powtórzeniami
+
+```{r}
+h <- sample(1:5, 300, rep = TRUE)
+```
+ 
+Ten jest już zbyt długi, aby patrzeć na niego w konsoli, więc spójrzmy na pierwsze i ostatnie elementy:
+
+
+```{r} 
+head(h, n = 2) #Pokaż mi dwa pierwsze elementy wektora h
+tail(h, n = 10) #Pokaż mi 10 ostatnich elementów wektora h
+head(h, n = -290) # pokaż mi wszystko oprócz ostatnich 290
+```
+
+Elementy wektora można wybierać za pomocą operacji porównania:
+
+- `<`
+- `>`
+- `<=`
+- `> =`
+- `==`
+- `! =`
+
+```{r}
+c(4, 7, 7, 7, 3, -2, 7) != 7 # O potężny R, daj mi odpowiedź, które z moich elementów nie są równe 7.
+
+
+```
+
+Jeśli zapiszemy wynikowy wektor z wartościami logicznymi, możemy wyprowadzić te elementy wektora, które spełniają nasz warunek. Spróbujmy na przykładzie:
+
+```{r}
+seq_vector1 #nasz wcześniej wykonany wektor
+idx <- seq_vector1 > 5 # zapisujemy nasz wektor logiczny do idx
+seq_vector1[idx] # pokaż mi elementy, które otrzymały prawdę na poprzednim kroku
+```
+
+
+```{r}
+
+data_frame <- data.frame(
+  id = 1:3,
+  name = c("Alice", "Bob", "Charlie"),
+  score = c(90, 85, 88)
+)
+print(data_frame)
+
+```
+Aby używać jakiegokolwiek pakietu, potrzebujesz
+
+zainstalować go - musisz to zrobić tylko raz
+uruchomić go - ten krok powinieneś wykonać za każdym razem, gdy zaczynasz pracować z R
+Istnieje kilka opcji, jak można zainstalować pakiet; nauczę Cię, jak ja to robię.
+
+Przejdź do Narzędzia - Zainstaluj pakiety - wpisz "tidyverse" (bez cudzysłowów) i naciśnij zainstaluj. Teraz masz czas, aby zrobić sobie kawę, to jest największy (i powiedziałbym jeden z najbardziej użytecznych pakietów). Czerwone linie w konsoli są w porządku, chyba że zobaczysz komunikat o błędzie.
+
+Zainstaluj proszę pakiety o nazwie rio (ten będzie importować i eksportować dane) oraz skimr (ten służy do statystyk opisowych) w ten sam sposób. To zajmie znacznie mniej czasu.
+
+Teraz musimy uruchomić pakiety:
+
+```{r}
+library(tidyverse)
+
+#uruchom pakiety rio i skimr tutaj i upewnij się, że nie masz komunikatów o błędach w konsoli
+
+```
+
+Spójrzmy, który folder na naszym komputerze R uważa za katalog roboczy.
+```{r}
+getwd()
+```
+
+Możesz umieścić swoje pliki danych w tym folderze lub zmienić folder.
+Go to Session - Set Working Directory - Choose Directory. 
+
+R mawiele wbudowanych zestawów danych, co jest bardzo przydatne do nauki.
+
+Weźmy ten o nazwie "diamonds"
+
+```{r}
+?diamonds #opis zestawu danych pojawił się w prawym dolnym rogu
+dia <- diamonds #importujemy zestaw danych do naszego środowiska
+```
+
+Szybko dowiedzmy się czegoś o diamentach
+
+```{r}
+skim(dia)
+```
+
+Ile zmiennych znajduje się w zestawie danych?
+Ile obserwacji znajduje się w zestawie danych?
+
+Jaka jest średnia waga diamentu?
+Ile typów czystości jest rozróżnianych?
+
+Odpowiedzi do samosprawdzenia znajdują się na samym dole kodu. Ale najpierw spróbuj sam. Nic nie działa lepiej niż własne doświadczenie.
+
+Czy możemy otrzymać te same wyniki, pytając o konkretne wartości? Na przykład średnią wagę? Oczywiście
+
+```{r}
+mean(dia$carat) #zmienna carrat należąca do zestawu danych dia
+```
+
+
+Sprawdź, jaki jest typ zmiennej "price" z zestawu danych dia?
+
+```{r}
+class(dia$price)
+typeof(dia$price)
+
+class(dia$carat)
+typeof(dia$carat) #dlaczego jest różnica?
+```
+Ale interesują mnie tylko drogie (przynajmniej 2 razy droższe niż średnia cena) diamenty i chcę dowiedzieć się o ich czystości. Spróbujmy je odfiltrować!
+
+```{r}
+dia_exp <- filter(dia, price > mean(price)*2) #O potężny R, proszę odfiltruj diamenty z zestawu danych dia, które mają cenę wyższą niż dwukrotność średniej ceny.
+
+table(dia_exp$clarity) # Hm, wygląda na to, że diamenty ze wszystkich kategorii mogą być drogie. Tak na wszelki wypadek - nic nie wiem o diamentach =)
+```
+
+Sprawdźmy, czy mieliśmy rację?
+
+```{r}
+dia_exp <- filter(dia, price > mean(price)*2)
+
+mean(dia$price)
+
+mean(dia$price)*2
+
+min(dia_exp$price) # Więc 7866 jest większe niż 7865,599, więc dostaliśmy to, czego chcieliśmy. Gratulacje)
+
+```
+
+Teraz zadanie dla Ciebie - odfiltruj diamenty z x>=5 i sprawdź ich medianę ceny. Możesz użyć skim lub bezpośredniego polecenia median().
+
+```{r}
+dia2<-filter(dia,x>=5)
+median(dia2$price)
+```

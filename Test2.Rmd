@@ -1,0 +1,216 @@
+---
+title: "Wejscówka 2"
+author: "Maria Varlamova"
+date: "2024-03-11"
+output: html_document
+---
+
+
+1.Proszę, utwórz zestaw danych "dia_home", filtrując diamenty o czystości "VS1", "VS2", "VVS2", "VVS1" i cenie niższej niż średnia. Następnie utwórz zmienną pokazującą różnicę rozmiaru x poszczególnych diamentów od średniego x w podpróbie. Nie zapomnij o funkcji abs() aby otrzymać moduł. I utwórz tabelę pokazującą średnią różnicę według typu koloru, ułożoną od najwyższych średnich do najniższych, pokazując tylko 3 pierwsze linie
+
+```{r}
+library(tidyverse)
+library(rio)
+library(skimr)
+diamonds <- diamonds
+```
+
+```{r}
+# na samym początku przygotowujemy sobie nasze dia_home
+dia_home <- diamonds # przypisujemy do zmiennej dia_home na razie całe diamonds. Za chwilę je okroimy
+
+# poniżej filtrujemy tabelę ze zmiennej dia_home tak, aby zostały tylko te wiersze, które spełniają podane warunki
+dia_home <- filter(diamonds, clarity == 'VS1' | clarity == 'VS2' | clarity == 'VVS2' | clarity == 'VVS1')
+
+# kalkulujemy sobie średnią z ceny diamonds (moglibyśmy kalkulować też średnią z ceny wyłącznie dia_home, ale instrukcja jest niejasna)
+mean_price <- mean(diamonds$price)
+# gdybyśmy jednak chcieli zrobić w oparciu o dia_home (czyli okrojoną tabelę), to użyjemy tego polecenia:
+# mean_price <- mean(dia_home$price)
+
+# teraz filtrujemy nasze dia_home i zostawiamy tylko te wiersze, w których cena jest niższa od średniej
+dia_home <- dia_home %>% filter(price < mean_price)
+
+# teraz utworzymy tabelę różnic rozmiaru x. Na początku kalkulujemy średnią x, do któej będziemy się odnosić
+mean_x <- mean(dia_home$x)
+
+# w następnym kroku tworzymy sobie dataframe, który zawiera samą kolumnę x
+dia_x <- data.frame(dia_home[c('x')])
+
+# teraz obliczamy rezydua x. To długa formuła więc skupmy się:
+# dia_x %>% mutate(residual_x = dia_home$x - mean_x)     <------ ta część to dodanie do tabeli dia_x różnicy między wartością z dia_home$x a mean_x
+# abs(<to co wyżej>)     <------ ta część oblicza wartość absolutną - bo chcemy mieć różnicę, a nie koniecznie wartość odejmowania
+# abs()['residual_x']    <------ to z kolei wyciąga nam wyłącznie kolumnę residual_x (bo kolumny x nie potrzebujemy)
+residuals_x <- abs(dia_x %>% mutate(residual_x = x - mean_x))['residual_x']
+
+# teraz dołączamy dataframe residuals_x do dia_home
+dia_home <- cbind(dia_home, residuals_x)
+
+
+
+
+# teraz czas na grupowanie
+
+# poniżej aplikujemy najpierw grupowanie po kolorze, a potem podsumowanie oparte o liczenie średniej. W efekcie mamy średnią x dla każdego koloru
+mean_residuals <- dia_home %>% group_by(color) %>% summarise(mean_residual = mean(residual_x))
+
+# na koniec sortujemy za pommocą metody arrange() (desc oznacza, że malejąco), a potem wywołujemy metodę head(3) by zapisać tylko trzy pierwsze wiersze
+mean_residual_sorted <- mean_residuals %>% arrange(desc(mean_residual)) %>% head(3)
+
+
+
+# garść informacji:
+# żeby pozyskać kolumnę jako wektor używamy znaku $, np: dia_home$x
+class(dia_home$x)
+# to da nam odpowiedź numeric
+# jeśli jednak chcemy pozyskać kolumnę jako data frame, to musimy użyć nawiasów kwadratowych i wskazać nazwę kolumn, np dia_home[c('x')] 
+# (c(...) <---- ta konstrukcja służy do tworzenia wektorów)
+class(dia_home[c('x')])
+# to da odpowiedź "data.frame"
+# czasem ta różnica może być konieczna do odpowiednich funkcji
+# 
+# takie śmieszne znaczki %>% to tzw. operator potoku (albo można też chyba określić go pipe'em). Działa tak, że przekierowuje dane z lewej strony na prawo.
+# gdy mamy taką konstrukcję:
+# dane %>% group_by(color) %>% summarise(mean_price = mean(price))
+# to to oznacza, że dane najpierw zostały zgrupowane, a następnie dla każdej z tych grup została obliczona średnia cena.
+
+# metoda cbind() służy do łączenia dwóch dataframów. Żeby połączyć dataframe z wektorem używamy metody mutate:
+# df <- df %>% mutate(nowa_kolumna = jakis_wektor)
+# zauważmy że użyliśmy tu tego operatora potoku przesyłając tabelę do funkcji mutate
+
+# metoda filter jest raczej łatwa do zrozumienia. Podajemy na początku dane po których filtrujemy, a potem warunki na zasadzie:
+# kolumna = zadana_wartość, albo kolumna < jakaś_liczba.
+
+
+```
+2.Analiza danych samochodowych
+
+Wczytanie danych: Wczytaj zbiór danych mtcars i zapisz go jako ramkę danych df.
+
+Wybór zmiennych: Z ramki danych df wybierz tylko trzy zmienne: mpg (miles per gallon), cyl (number of cylinders), i wt (weight of the car). Możesz użyć funkcji select() lub wybrać kolumny bezpośrednio.
+
+Dodanie nowej kolumny: Utwórz nową kolumnę w ramce danych df, która będzie zawierać iloczyn mpg i wt. Zapisz ten iloczyn efektywności paliwowej i wagi samochodu w kolumnie o nazwie product. 
+
+Filtrowanie danych: Wyfiltruj ramkę danych df, aby zawierała tylko wiersze, gdzie liczba cylindrów (cyl) wynosi 6 lub 8.
+
+Podsumowanie danych: Użyj funkcji group_by() i summarize() z pakietu dplyr, aby obliczyć średnią wartość kolumny product dla każdej grupy cyl. Zapisz wyniki w nowej ramce danych df_summary.
+
+Korelacja: Oblicz korelację między zmienną mpg a iloczynem mpg i wt dla danych wyfiltrowanych. Wydrukuj wynik korelacji do konsoli.
+
+Użyj funkcji export() do zapisania danych df_summary jako plik CSV o nazwie "df_summary.csv".
+
+```{r}
+df <- mtcars
+
+df_three <- df %>% select('mpg', 'cyl', 'wt')
+
+df <- df %>% mutate(product = mpg * wt)
+
+df <- filter(df, cyl == 6 | cyl == 8)
+
+df_summary <- df %>% group_by(cyl) %>% summarise(mean_product = mean(product))
+
+correlation <- cor(df$mpg, df$product)
+print(correlation)
+
+export(df_summary, 'df_summary.csv', "csv")
+
+```
+
+
+3. Przeczytaj uważnie poniższe instrukcje i stworz funkcje:
+
+Instrukcja warunkowa if, else if i else w języku R służy do wykonywania różnych działań w zależności od spełnienia określonych warunków. 
+
+1.	Instrukcja warunkowa if:
+•	Instrukcja if służy do sprawdzenia warunku i wykonania określonej akcji, jeśli warunek jest spełniony.
+```{r}
+if (warunek) { # Kod do wykonania, jeśli warunek jest spełniony }
+```
+•	Jeśli warunek jest spełniony (czyli jego wartość to TRUE), kod wewnątrz klamr {} zostanie wykonany. W przeciwnym razie, jeśli warunek jest nieprawdziwy (czyli jego wartość to FALSE), kod wewnątrz klamr {} zostanie pominięty.
+2.	Instrukcja warunkowa else if:
+•	Instrukcja else if pozwala na sprawdzenie kolejnego warunku, jeśli pierwszy warunek nie został spełniony.
+```{r}
+if (warunek1) { # Kod do wykonania, jeśli warunek1 jest spełniony } 
+  else if (warunek2) { # Kod do wykonania, jeśli warunek2 jest spełniony, a warunek1 nie jest spełniony } 
+```
+•	Jeśli warunek1 jest spełniony, wykonuje się kod wewnątrz pierwszego if. Jeśli nie jest spełniony, sprawdzany jest warunek2. Jeśli warunek2 jest spełniony, wykonuje się kod wewnątrz else if. W przeciwnym razie kod wewnątrz else if zostanie pominięty.
+3.	Instrukcja warunkowa else:
+•	Instrukcja else wykonuje się, gdy żaden z poprzednich warunków nie został spełniony.
+```{r}
+if (warunek1) { # Kod do wykonania, jeśli warunek1 jest spełniony } 
+  else if (warunek2) { # Kod do wykonania, jeśli warunek2 jest spełniony, a warunek1 nie jest spełniony } 
+    else { # Kod do wykonania, jeśli żaden z warunków nie jest spełniony } 
+```
+•	Jeśli ani warunek1, ani warunek2 nie są spełnione, kod wewnątrz else zostanie wykonany.
+Pamiętaj, że każda instrukcja if musi być zakończona nawiasem klamrowym {} i może zawierać dowolną ilość instrukcji. Instrukcja else if oraz else są opcjonalne i można ich użyć po instrukcji if, aby obsłużyć dodatkowe przypadki.
+
+A teraz stwórz funkcję, która przeliczy temperaturę z jednej skali (np. Celsiusza) na inną (np. Fahrenheita lub Kelvina).
+
+Oto sposób konwersji temperatury między stopniami Celsiusza (°C), Fahrenheita (°F) i Kelvina (K) dla przypomnienia:
+
+1. **Z Celsiusza do Fahrenheita**: 
+   - Pomnóż temperaturę w stopniach Celsiusza przez 9/5 (1,8).
+   - Dodaj 32 do wyniku.
+
+   *Przykład*: 
+   \(T(°F) = T(°C) \times \frac{9}{5} + 32\)
+
+2. **Z Fahrenheita do Celsiusza**: 
+   - Odejmij 32 od temperatury w stopniach Fahrenheita.
+   - Pomnóż wynik przez 5/9 (0,5556).
+
+   *Przykład*: 
+   \(T(°C) = (T(°F) - 32) \times \frac{5}{9}\)
+
+3. **Z Celsiusza do Kelvina**: 
+   - Dodaj 273.15 do temperatury w stopniach Celsiusza.
+
+   *Przykład*: 
+   \(T(K) = T(°C) + 273.15\)
+
+4. **Z Kelvina do Celsiusza**: 
+   - Odejmij 273.15 od temperatury w stopniach Kelvina.
+
+   *Przykład*: 
+   \(T(°C) = T(K) - 273.15\)
+
+5. **Z Fahrenheita do Kelvina**: 
+   - Najpierw przelicz temperaturę z Fahrenheita na Celsiusza, a następnie dodaj 273.15.
+
+   *Przykład*: 
+   \(T(K) = (T(°F) - 32) \times \frac{5}{9} + 273.15\)
+
+6. **Z Kelvina do Fahrenheita**: 
+   - Najpierw przelicz temperaturę z Kelvina na Celsiusza, a następnie pomnóż wynik przez 9/5 (1,8) i dodaj 32.
+
+   *Przykład*: 
+   \(T(°F) = (T(K) - 273.15) \times \frac{9}{5} + 32\)
+
+```{r}
+
+konwertuj_temperaturę <- function(temperatura, skala_wejsciowa, skala_wyjsciowa) {
+  if (skala_wejsciowa == "Celsiusza" & skala_wyjsciowa == "Fahrenheita") {
+    wynik <- temperatura * 9/5 + 32  # Przeliczenie na stopnie Fahrenheita
+  } else if  # Przeliczenie na stopnie Celsiusza
+  } else if  # Przeliczenie na stopnie Kelvina
+  } else if  # Przeliczenie na stopnie Celsiusza
+  } else if  # Przeliczenie na stopnie Kelvina
+  } else if  # Przeliczenie na stopnie Fahrenheita
+  } else {
+    wynik <- "Nieprawidłowa kombinacja skal"  # Komunikat o błędzie
+  }
+  return(wynik)
+}
+
+
+konwertuj_temperaturę(25, "Celsiusza", "Fahrenheita")
+```
+
+4. Napisz funkcję, która przyjmie liczbę jako argument i zwróci jej wartość bezwzględną.
+
+```{r}
+
+zwroc_wartosc_bezwzgledna(-1)
+zwroc_wartosc_bezwzgledna(10)
+```
+

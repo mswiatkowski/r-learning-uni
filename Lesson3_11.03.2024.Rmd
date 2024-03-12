@@ -1,0 +1,157 @@
+---
+title: "Lesson 2"
+author: "Maria Varlamova"
+date: "11 Marta 2024"
+output: html_document
+---
+
+Dzisiaj porozmawiamy nieco o wizualizacji danych. Wizualizacja danych to naprawdę istotna część analizy danych, nie tylko tworzenie ładnych wykresów, by zilustrować swoje pomysły na końcu. Jeśli nadal macie wątpliwości - wystarczy, że wpiszecie w Google "Kwartet Anscombe'a" - 4 różne zbiory danych, taki sami statystyki opisowe.
+
+Jeśli chodzi o wykresy, bardzo polecam korzystanie z pakietu ggplot2, który pobraliśmy jako część pakietu tidyverse.
+
+Więc, gramatyka ggplot. Zaczniemy od wykresów rozproszenia, ale wszystko, czego się nauczymy, jest również istotne dla innych typów wykresów.
+
+Najpierw mówimy, jakim zbiorem danych będziemy się posługiwać. Następnie określamy, co stanowi naszą oś x i y (jeśli obie są istotne), a potem jaki rodzaj wykresu chcielibyśmy stworzyć? To jak kanapka - bierzemy pierwszą warstwę, potem kładziemy drugą, następnie trzecią, dodając jedną po drugiej: warstwę danych, warstwę estetyki (lub "aes"), a następnie warstwę geometrii.
+
+Dolną warstwą jest warstwa danych, która zawiera surowe dane, które są wizualizowane. Następną warstwą jest warstwa estetyki, która mapuje dane na właściwości wizualne, takie jak x, y, kolor, rozmiar i kształt. Na koniec, górną warstwą jest warstwa geometrii, która określa typ wykresu (takie jak punkty, linie lub słupki) oraz sposób połączenia danych i estetyki w celu stworzenia ostatecznej wizualizacji.
+
+Spójrzmy na przykład.
+
+```{r}
+mtcars %>% ggplot(aes(x = cyl, y = mpg)) + geom_point()
+
+mtcars %>% ggplot(aes(x = factor(cyl), y = mpg)) + geom_point()
+
+#Więc chcę cyl - liczbę cylindrów jako x (i mówię R, że jest to zmienna kategoryczna za pomocą polecenia factor()), mile/galon jako y) i chcę wykresu rozrzutu (+geom_point()). Próbowaliśmy na zajęciach z factor() i bez niego.
+```
+
+
+Więc, *dataset-estetyka (jakie dane przedstawiamy) - geometria (w jakiej formie je przedstawiamy)*. Przeczytaj to ponownie. To kluczowe dla dalszego zrozumienia.
+
+Za każdym razem, *gdy dodajesz warstwę danych, powinieneś umieścić ją w aes()*. Estetyka. **Dane powinny być w aes()**. Każda zmienna, którą dodajesz, powinna być w aes(). Zawsze. **Każda**. Nie ma danych poza aes(). W przeciwnym razie potężny R przyjdzie i ugryzie cię podczas pełni księżyca)
+
+````{r}
+mtcars %>% ggplot(aes(x = wt, y = mpg)) + geom_point() 
+```
+
+Ale naprawdę chciałabym dodać do tego disp, ale x i y są już zajęte, więc co możemy użyć? Możemy użyć koloru, rozmiaru lub kształtu kropek. Kształt będzie używany dla zmiennej kategorycznej, podczas gdy rozmiar i kolor mogą być użyte dla zmiennych numerycznych.
+
+````{r}
+mtcars %>% ggplot(aes(x = wt, y = mpg, size = disp)) + geom_point() 
+
+#spróbuj tego samego z kolorem tutaj
+```
+Teraz czas na praktykę:
+  
+Wróćmy do diamentów, proszę, utwórz wykres rozrzutu, gdzie x - karat, y - cena i grupy szlifu (cut) są pokazane według koloru.
+```{r} 
+
+```
+Dane można przesuwać między nawiasami.Przesuń color = cu do geom_point. *Używając aes*. Pamiętaj o potężnym R, który przyjdzie cię ugryźć w nocy
+
+```{r} 
+
+```
+
+Możesz także dodać linię trendu + geom_smooth() na końcu.
+```{r} 
+diamonds %>% ggplot(aes(x = carat, y = price)) + 
+  geom_point(aes(color = cut), alpha = 0.4) + #Spójrz, umieściłam kolor w funkcji geom_point(), nadal pokazując, że jest w aes() - estetyka. Co się stanie, jeśli zostawię to w ggpot(aes())? Po prostu spróbuj to i zobacz. Dodałam także alfa=0,4 dla krycia - żeby widzieć nakładające się warstwy
+  geom_smooth() 
+```
+
+Trendy interesują mnie również według rodzaju kroju. Jeśli chcesz mieć skalę logiczną - po prostu dodaj +scale_x_log10() lub +scale_y_log10() na końcu
+
+```{r}
+diamonds %>% ggplot(aes(x = carat, y = price)) + 
+  geom_point(alpha = 0.4) + 
+  geom_smooth(aes(colour = cut), se = FALSE) #se = FALSE służą do znikania cienia wokół linii trendu. Mam nadzieję, że zgadniesz po nazwie, co to jest)) A może R czeka na nadejście nocy). Ale za każdym razem, gdy nie jesteś pewien, co się dzieje - użyj ?nazwy funkcji, np.: ?geom_smooth w konsoli. Każda funkcja ma mnóstwo argumentów. Nie warto ich wszystkich zapamiętywać – zawsze znajdziesz je w Pomocy.
+```
+
+Możemy to zrobić również dla naszych samochodów. Możesz zapisać swój ggplot jako obiekt, tak jak zrobiliśmy to w przypadku danych.
+
+```{r}
+graph <- mtcars %>% 
+  ggplot(aes(x = wt, y = mpg, color = factor(cyl))) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE) #nic widocznego się nie dzieje, ponieważ właśnie zapisaliśmy obiekt w naszym środowisku
+
+graph + geom_smooth(aes(group = 1), method = "lm", se = FALSE, linetype = 2) # a następnie wywołaj to i dodaj to, co chcemy, tutaj kod, aby uzyskać ogólny trend. Tak to robimy - warstwa po warstwie.
+```
+
+
+Okej, to były podstawy tworzenia wykresów punktowych, ale za tym kryje się cały wszechświat możliwości dostosowania ich do twoich pomysłów. Możesz nawet wybrać, aby środek punktu był w jednym kolorze, a obramowanie w innym, w zależności od charakterystyk.
+
+Możesz dostosować kolor, kształt, przezroczystość (alpha), wypełnienie oraz rozmiar swoich punktów. Pamiętasz jeden z pierwszych wykresów, które stworzyliśmy? Możemy go uczynić o wiele bardziej kolorowym.
+
+```{r}
+mtcars %>% ggplot(aes(x = wt, y = mpg)) + geom_point(color="dark green", shape = 10, size=7) #Proszę popbawić się i pozmieniać kształty od 0 do 25 oraz sprobować użyć kodów kolorów z #.
+```
+
+
+Poza wykresem rozrzutu możesz utworzyć 36 typów wykresów w ggplot... może już więcej! Jestem pewna, że to 5 razy więcej, czego będziesz potrzebować, więc zatrzymamy się na podstawowych i najczęściej używanych, ale pamiętaj, że możesz tutaj zrobić w zasadzie wszystko. A oto link do inspiracji: (https://www.r-graph-gallery.com/). 
+
+Przyjrzymy się histogramom, wykresom słupkowym, liniowym i pudełkowym.
+
+Zacznijmy od historygamów. Stosuje się je w przypadku zmiennych ciągłych, pokazując, ile obserwacji przypada na każdy przedział.
+
+```{r}
+
+mtcars %>% ggplot(aes(x = mpg)) + geom_histogram()
+
+```
+Aby było trochę ładniej, możemy użyć binwidth, jak zasugerowano powyżej wykresu:
+
+```{r}
+
+mtcars %>% ggplot(aes(x = mpg)) + geom_histogram(binwidth=1, fill="blue")
+
+```
+
+Wykresy słupkowe dotyczą zmiennych kategorycznych. (Jeśli chcesz, aby wysokości słupków reprezentowały wartości w danych, użyj zamiast tego funkcji *geom_col()*).
+
+```{r}
+mtcars %>% ggplot(aes(x=cyl)) + geom_bar()
+```
+
+Możemy również umieścić kilka zmiennych:
+
+```{r}
+
+mtcars %>% ggplot(aes(x = cyl, fill = factor(vs))) + geom_bar(position = "dodge")
+
+#Teraz zmień pozycję na "stack" i "fill". Spróbuj także alpha=0.5, position="identity"
+```
+
+Możesz także kontrolować odległość między słupkami:
+
+```{r}
+posn_d <- position_dodge(width = 0.8) #zdefiniuj to tutaj
+ggplot(mtcars, aes(x = cyl, fill = factor(am))) + geom_bar(position = posn_d, alpha = 0.6) #odwołaj się do tego tutaj
+ 
+```
+
+W przypadku linii działa ta sama logika, zmieńmy zbiór danych:
+```{r}
+economics %>% ggplot(aes(x=date)) + geom_line(aes(y=psavert), linewidth=1, color="firebrick") + geom_line(aes(y=uempmed), linewidth=1, color="steelblue", linetype="twodash") 
+#potrzebujemy dwóch linii, więc musimy dodać pierwszą, potem drugą
+# dostępne linetypes: solid, dashed, dotted, dotdash, longdash and twodash
+```
+
+I na koniec boxplot
+```{r}
+mtcars %>% ggplot(aes(x=factor(cyl), y=mpg)) + geom_boxplot(aes(fill = factor(cyl)))#podstawowy
+
+mtcars %>% ggplot(aes(factor(cyl), mpg)) + geom_boxplot(aes(fill = factor(cyl)), width=0.5, outlier.colour = "dodgerblue", outlier.size = 4, outlier.shape = 16, outlier.stroke = 2, notch=T, notchwidth = 0.1)  #aby pokazać możliwości dostosowania widoku
+```
+
+Osobiście nadal wolę wykresy Violota, ale to kwestia gustu:
+```{r}
+mtcars %>% ggplot(aes(x=factor(cyl), y=mpg)) + geom_violin(aes(fill = factor(cyl)), width=0.7, trim=F) 
+```
+
+To wszystko na dzisiaj, mam nadzieję, że się podobało. Dzisiaj nie poruszyliśmy tematu, jak uczynić twoje wykresy piękniejszymi i przygotować je do publikacji, ponieważ głównie mówiliśmy o eksploracyjnej, a nie wyjaśniającej mocy wizualizacji. Ale jeśli chciałabyś zgłębić temat dalej - oto odnośnik do kontynuacji (http://r-statistics.co/Complete-Ggplot2-Tutorial-Part1-With-R-Code.html). Jak zawsze chętnie odpowiem na twoje pytania.
+
+
+
+
