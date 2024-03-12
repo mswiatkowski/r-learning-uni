@@ -191,12 +191,27 @@ Oto sposób konwersji temperatury między stopniami Celsiusza (°C), Fahrenheita
 konwertuj_temperaturę <- function(temperatura, skala_wejsciowa, skala_wyjsciowa) {
   if (skala_wejsciowa == "Celsiusza" & skala_wyjsciowa == "Fahrenheita") {
     wynik <- temperatura * 9/5 + 32  # Przeliczenie na stopnie Fahrenheita
-  } else if  # Przeliczenie na stopnie Celsiusza
-  } else if  # Przeliczenie na stopnie Kelvina
-  } else if  # Przeliczenie na stopnie Celsiusza
-  } else if  # Przeliczenie na stopnie Kelvina
-  } else if  # Przeliczenie na stopnie Fahrenheita
-  } else {
+  } else if (skala_wejsciowa == "Fahrenheita" & skala_wyjsciowa == "Celsjusza") # Przeliczenie na stopnie Celsiusza
+  {
+    wynik <- (temperatura - 32) * 5/9
+  }
+  else if (skala_wejsciowa == "Fahrenheita" & skala_wyjsciowa == "Kelvina") # Przeliczenie na stopnie Kelvina
+  {
+    wynik <- konwertuj_temperaturę(temperatura, "Fahrenheita", "Celsjusza") + 273.15
+  }
+  else if (skala_wejsciowa == "Kelvina" & skala_wyjsciowa == "Celsjusza")   # Przeliczenie na stopnie Celsiusza
+  {
+    wynik <- temperatura - 273.15
+  }
+  else if (skala_wejsciowa == "Celsjusza" & skala_wyjsciowa == "Kelvina")   # Przeliczenie na stopnie Kelvina
+  {
+    wynik <- temperatura + 273.15
+  }
+  else if (skala_wejsciowa == "Kelvina" & skala_wyjsciowa == "Fahrenheita") # Przeliczenie na stopnie Fahrenheita
+  {
+    wynik <- konwertuj_temperaturę(temperatura, "Kelvina", "Celsjusza") * 9/5 + 32
+  }
+  else {
     wynik <- "Nieprawidłowa kombinacja skal"  # Komunikat o błędzie
   }
   return(wynik)
@@ -204,11 +219,27 @@ konwertuj_temperaturę <- function(temperatura, skala_wejsciowa, skala_wyjsciowa
 
 
 konwertuj_temperaturę(25, "Celsiusza", "Fahrenheita")
+konwertuj_temperaturę(25, "Kelvina", "Fahrenheita")
+
+
+### małe wyjaśnienie co to za magia tam gdzie mamy konwersję z kelvina na fahrenheita i na odwrót.
+# Otóż to się nazywa rekurencja. To sytuacja gdy funkcja wywołuje samą siebie. 
+# W tym wypadku skoro mamy najpierw przekonwertować z kelvina na celsjusza i dopiero potem na fahrenheita,
+# to możemy wykorzystać implementację konwersji z kelvina na celsjusza, którą już mamy.
+# wystarczy tylko wywołać naszą funkcję z odpowiednimi parametrami
 ```
 
 4. Napisz funkcję, która przyjmie liczbę jako argument i zwróci jej wartość bezwzględną.
 
 ```{r}
+zwroc_wartosc_bezwzgledna <- function(x) {
+  if (x <0) {
+    return(-x)
+  }
+  else {
+    return(x)
+  }
+}
 
 zwroc_wartosc_bezwzgledna(-1)
 zwroc_wartosc_bezwzgledna(10)
