@@ -1,3 +1,5 @@
+library(stats)
+
 # ZADANIE 1
 # W celu zbadania średnich zarobków kobiet w różnych branżach w pewnym 
 # województwie, przeprowadzono badanie na 360 tys. firm. Populację podzielono 
@@ -233,6 +235,132 @@ sprintf("Min. wielkość próby dla firm z sektora publicznego to: % s", n_h3_np
 # min liczebność próby, przy założeniu, że poziom ufności wynosi 0,90?
 # Jakie losowanie zastosowano?
   
+
+N <- 106000
+d <- 8.80
+d_squared <- d^2
+alfa <- 0.1
+u_alfa <- qnorm(1 - alfa/2)
+u_alfa_squared <- u_alfa^2
+
+# 10-25 pracowników
+N_h1 <- 75000
+S_h1 <- 390
+W_h1 <- N_h1 / N
+
+# 50-249 pracowników
+N_h2 <- 24700
+S_h2 <- 640
+W_h2 <- N_h2 / N
+
+# 250+ pracowników
+N_h3 <- 6300
+S_h3 <- 470
+W_h3 <- N_h3 / N
+
+# wagi wszystkich warstw:
+W <- c(W_h1, W_h2, W_h3)
+
+# odchylenia i wariancje wszystkich warstw
+S <- c(S_h1, S_h2, S_h3)
+S_squared <- S^2
+
+# Użyjemy napisanych wyżej funkcji. Tym razem nie liczymy wag z uwzględnieniem odchylenia standardowego.
+# Może warto byłoby je policzyć, ale nadgorliwość jest gorsza od faszyzmu.
+
+#################################
+# dla losowania proporcjonalnego:
+
+# przypomnijmy funkcje:
+count_n_prop <- function(W, S_squared, N, alfa, d) {
+  licznik <- sum(W * S_squared)
+  d_squared <- d^2
+  u_alfa_squared <- (qnorm(1 - alfa/2))^2
+  mianownik_part1 <- d_squared / u_alfa_squared
+  mianownik_part2 <- (1 / N) * sum(W * S_squared)
+  n <- licznik / (mianownik_part1 + mianownik_part2)
+  return(n)
+}
+
+count_n_h_prop <- function(W_h, n) {
+  n_h <- W_h * n
+  return(n_h)
+}
+
+# a zatem:
+n_prop <- count_n_prop(
+  W=W,
+  S_squared=S_squared,
+  N=N,
+  alfa=alfa,
+  d=d
+)
+
+n_h1 <- count_n_h_prop(
+  W_h=W_h1,
+  n=n_prop
+)
+n_h2 <- count_n_h_prop(
+  W_h=W_h2,
+  n=n_prop
+)
+n_h3 <- count_n_h_prop(
+  W_h=W_h3,
+  n=n_prop
+)
+
+####################################
+# dla losowania nieproporcjonalnego:
+
+# też przypomnijmy funkcje:
+count_n_nprop <- function(W, S, N, alfa, d) {
+  licznik <- (sum(W * S))^2
+  d_squared <- d^2
+  u_alfa_squared <- (qnorm(1 - alfa/2))^2
+  mianownik_part1 <- d_squared / u_alfa_squared
+  mianownik_part2 <- (1 / N) * sum(W * (S^2))   # Tu ważne: nie podnosimy do kwadratu sumy, a tylko wektor odchyleń standardowych (zmieniając go w wektor wariancji)
+  n <- licznik / (mianownik_part1 + mianownik_part2)
+  return(n)
+}
+
+count_n_h_nprop <- function(W, S, W_h, S_h, n) {
+  licznik <- W_h * S_h
+  mianownik <- sum(W * S)
+  n <- (licznik / mianownik) * n
+  return(n)
+}
+
+# a zatem:
+n_nprop <- count_n_nprop(
+  W=W,
+  S=S,
+  N=N,
+  alfa=alfa,
+  d=d
+)
+
+n_h1 <- count_n_h_nprop(
+  W=W,
+  S=S,
+  W_h=W_h1,
+  S_h=S_h1,
+  n=n_nprop
+)
+n_h2 <- count_n_h_nprop(
+  W=W,
+  S=S,
+  W_h=W_h2,
+  S_h=S_h2,
+  n=n_nprop
+)
+n_h3 <- count_n_h_nprop(
+  W=W,
+  S=S,
+  W_h=W_h3,
+  S_h=S_h3,
+  n=n_nprop
+)
+
 
 
 
