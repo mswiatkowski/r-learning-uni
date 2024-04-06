@@ -16,12 +16,15 @@ u_alfa_squared <- u_alfa^2    # kwadrat u_alfa (do wzoru)
 N <- 340000                   # liczebność całkowita (da się ją wyliczyć, ale lepiej tu już wpisać, bo to stała)
 
 
+#################################################
+# Teraz wyliczymy dane dla poszczególnych warstw:
+
 # firmy usługowe:
 N_h1 <- 100000                # liczebność warstwy h1
 S_h1 <- 750                   # odchylenie standardowe warstwy h1
 S_h1_squared <- S_h1^2        # wariancja warstwy h1
 W_h1 <- N_h1 / N         # waga warstwy h2 bez uwzględnienia odchylenia standardowego
-weight_of_S_h1 <- S_h1 * weight_h1     # waga razy odchylenie standardowe
+weight_of_S_h1 <- S_h1 * W_h1     # waga razy odchylenie standardowe
                                        # potrzebne do obliczenia wag firm
                                        # po uwzględnieniu odchylenia std
 
@@ -31,7 +34,7 @@ N_h2 <- 150000                # liczebność warstwy h2
 S_h2 <- 485                   # odchylenie standardowe warstwy h2
 S_h2_squared <- S_h2^2        # wariancja warstwy h2
 W_h2 <- N_h2 / N         # waga warstwy h2 bez uwzględnienia odchylenia standardowego
-weight_of_S_h2 <- S_h2 * weight_h2     # waga razy odchylenie standardowe
+weight_of_S_h2 <- S_h2 * W_h2     # waga razy odchylenie standardowe
                                        # potrzebne do obliczenia wag firm
                                        # po uwzględnieniu odchylenia std
 
@@ -40,7 +43,7 @@ N_h3 <- 90000                 # liczebność warstwy h3
 S_h3 <- 394                   # odchylenie standardowe warstwy h3
 S_h3_squared <- S_h3^2        # wariancja warstwy h3
 W_h3 <- N_h3 / N         # waga warstwy h3 bez uwzględnienia odchylenia standardowego
-weight_of_S_h3 <- S_h3 * weight_h3     # waga razy odchylenie standardowe
+weight_of_S_h3 <- S_h3 * W_h3     # waga razy odchylenie standardowe
                                        # potrzebne do obliczenia wag firm
                                        # po uwzględnieniu odchylenia std
 
@@ -57,60 +60,76 @@ W_h3_std <- weight_of_S_h3 / sum_weights_of_S
 # wagi firm (jako wektory- przyda się do wzorów):
 W <- c(W_h1, W_h2, W_h3)    # Wagi bez uwzględnienia odchylenia standardowego
 sum_W <- sum(W)             # suma wag bez std - jest równa 1, tak jak powinna (obliczamy tylko do sprawdzenia)
-W_std <- c(W_h1_std, W_h1_std, W_h1_std)
+W_std <- c(W_h1_std, W_h1_std, W_h1_std)   # Wagi z uwzględnieniem odchylenia standardowego
 # tworzymy też wektor odchyleń standardowych i wariancji:
-S <- c(S_h1, S_h2, S_h3)                                   # wektor odchyleń standardowych
-S_squared <- c(S_h1_squared, S_h2_squared, S_h3_squared)   # wektor wariancji
+S <- c(S_h1, S_h2, S_h3)   # wektor odchyleń standardowych
+S_squared <- S^2           # wektor wariancji
 
 
 ####################################
 # Losowanie warstwowe proporcjonalne
 
-# Napiszemy je sobie w formie funkcji
+
 # Poniższa przyjmuje pięć parametrów:
 # W <-- to jest wektor wag, mogą być z uwzględnieniem odchylenia standardowego lub bez (ale czy powinny, to trzeba dopytać na zajęciach)
-# S_squared <-- 
+# S_squared <-- to jest wektor wariancji
+# N <-- liczebność populacji
+# alfa <-- wartość alfa
+# d <-- maksymalny błąd
+# 
+# Jak można zauważyć nazwy parametrów pokrywają się z nazwami zmiennych, które sobie 
+# potworzyliśmy wyżej. To jest tylko dla naszej wygody, tak być nie musi. Tak więc 
+# jeśli do parametru W będziecie chcieli wstawić np. jakiś wektor 'wagi', to też będzie dobrze.
+# Używamy wzoru ze slajdu nr 25
 
-count_n_proportional <- function(W, S_squared, N, alfa, d) {
+count_n_prop <- function(W, S_squared, N, alfa, d) {
   licznik <- sum(W * S_squared)
   d_squared <- d^2
   u_alfa_squared <- (qnorm(1 - alfa/2))^2
   mianownik_part1 <- d_squared / u_alfa_squared
-  mianownik_part2 <- (1 / N) * licznik
+  mianownik_part2 <- (1 / N) * sum(W * S_squared)
   n <- licznik / (mianownik_part1 + mianownik_part2)
   return(n)
 }
 
-n_from_func_prop <- count_n_proportional(
-  W=c(weight_h1_with_std, weight_h2_with_std, weight_h3_with_std),
-  S_squared=c(S_h1_squared, S_h2_squared, S_h3_squared),
-  N=340000,
-  alfa=0.05,
-  d=15
+# Obliczamy więc nasze n używając stworzonej funkcji
+n_prop <- count_n_prop(
+  W=W_std,
+  S_squared=S_squared,
+  N=N,
+  alfa=alfa,
+  d=d
 )
-# WAŻNE!!! Wagi i wariancje trzeba wsadzić do funkcji jako dwa 
-# już przygotowane wektory
 
 
-# Obliczanie udziału frakcji
+# Teraz napiszemy funkcję obliczającą udział frakcji. Parametry to:
+# W_h <-- waga warstwy h (uwaga: to nie jest wektor, to tylko jedna waga)
+# n <-- wartość wyliczona przez nas wyżej
+# 
+# Jest też inny wariant tej funkcji, czyli (N_h / N) * n.
+# W tym wypadku zamiast W_h mamy policzoną wagę już na miejscu. 
+# Z tym że jest to waga bez uwzględnienia odchylenia standardowego.
+# Uznałem więc, że lepiej liczenie wagi wyrzucić poza funkcję, a do środka 
+# wkładać już policzoną.
+# Używamy wzoru ze slajdu nr 26
+
 count_n_h_prop <- function(W_h, n) {
-  n_h <- W_h * n    # Ważne: możemy tu chyba wcisnąć wagi bez i z uwzględnieniem std
+  n_h <- W_h * n
   return(n_h)
 }
 
+# Obliczamy więc minimalną liczebność próby dla poszczególnych warstw:
 n_h1_prop <- count_n_h_prop(
-  W=weight_h1_with_std,
-  n=n_from_func_prop
+  W=W_h1_std,
+  n=n_prop
 )
-
 n_h2_prop <- count_n_h_prop(
-  W=weight_h2_with_std,
-  n=n_from_func_prop
+  W=W_h2_std,
+  n=n_prop
 )
-
 n_h3_prop <- count_n_h_prop(
-  W=weight_h3_with_std,
-  n=n_from_func_prop
+  W=W_h3_std,
+  n=n_prop
 )
 
 print('Odpowiedź:')
@@ -122,55 +141,73 @@ sprintf("Min. wielkość próby dla firm usługowych to: % s", n_h3_prop)
 #######################################
 # Losowanie warstwowe nieproporcjonalne
 
-count_n_nonproportional <- function(W, S, N, alfa, d) {
+
+# Piszemy funkcję analogicznie do te wyżej. Parametry to:
+# W <-- wektor wag wszystkich warstw
+# S <-- wektor odchyleń standardowych (nie wariancji!!)
+# N <-- liczebność populacji
+# alfa <-- wartość alfa
+# d <-- maksymalny błąd
+# 
+# Ten wzór jest niemal taki sam jak poprzedni, różni się tylko tym, że sumę, 
+# którą obliczamy w liczniku podnosimy do kwadratu.
+# Używamy wzoru ze slajdu nr 27
+
+count_n_nprop <- function(W, S, N, alfa, d) {
   licznik <- (sum(W * S))^2
   d_squared <- d^2
   u_alfa_squared <- (qnorm(1 - alfa/2))^2
   mianownik_part1 <- d_squared / u_alfa_squared
-  mianownik_part2 <- (1 / N) * licznik
+  mianownik_part2 <- (1 / N) * sum(W * (S^2))   # Tu ważne: nie podnosimy do kwadratu sumy, a tylko wektor odchyleń standardowych (zmieniając go w wektor wariancji)
   n <- licznik / (mianownik_part1 + mianownik_part2)
   return(n)
 }
 
-n_from_func_nonprop <- count_n_nonproportional(
-  W=c(weight_h1_with_std, weight_h2_with_std, weight_h3_with_std),
-  S=c(S_h1, S_h2, S_h3),
-  N=340000,
-  alfa=0.05,
-  d=15
+# Wyliczamy sobie n używając powyższej funkcji:
+n_nprop <- count_n_nprop(
+  W=W_std,
+  S=S,
+  N=N,
+  alfa=alfa,
+  d=d
 )
 
-# Obliczanie udziału frakcji
+# ...A następnie piszemy funkcję, która obliczy nam udział frakcji. Parametry:
+# W <-- wektor wag wszystkich warstw
+# S <-- wektor odchyleń standardowych wszystkich warstw
+# W_h <-- waga wybranej warstwy (tylko jednej!)
+# S_h <-- odchylenie standardowe wybranej warstwy (też tylko jednej!)
+# n <-- n, które obliczyliśmy sobie wyżej
+# Używamy wzoru ze slajdu nr 28
 
-count_n_h_nonprop <- function(W, S, W_h, S_h, n) {
+count_n_h_nprop <- function(W, S, W_h, S_h, n) {
   licznik <- W_h * S_h
   mianownik <- sum(W * S)
   n <- (licznik / mianownik) * n
   return(n)
 }
 
-n_h1_nprop <- count_n_h_nonprop(
-  W=c(weight_h1_with_std, weight_h2_with_std, weight_h3_with_std),
-  S=c(S_h1, S_h2, S_h3),
-  W_h=weight_h1_with_std,
+# Liczymy zatem minimalną liczebność próby dla każdej z warstw:
+n_h1_nprop <- count_n_h_nprop(
+  W=W_std,
+  S=S,
+  W_h=W_h1_std,
   S_h=S_h1,
-  n=n_from_func_nonprop
+  n=n_nprop
 )
-
-n_h2_nprop <- count_n_h_nonprop(
-  W=c(weight_h1_with_std, weight_h2_with_std, weight_h3_with_std),
-  S=c(S_h1, S_h2, S_h3),
-  W_h=weight_h2_with_std,
+n_h2_nprop <- count_n_h_nprop(
+  W=W_std,
+  S=S,
+  W_h=W_h2_std,
   S_h=S_h2,
-  n=n_from_func_nonprop
+  n=n_nprop
 )
-
-n_h3_nprop <- count_n_h_nonprop(
-  W=c(weight_h1_with_std, weight_h2_with_std, weight_h3_with_std),
-  S=c(S_h1, S_h2, S_h3),
-  W_h=weight_h3_with_std,
+n_h3_nprop <- count_n_h_nprop(
+  W=W_std,
+  S=S,
+  W_h=W_h3_std,
   S_h=S_h3,
-  n=n_from_func_nonprop
+  n=n_nprop
 )
 
 
