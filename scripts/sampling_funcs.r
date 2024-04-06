@@ -134,8 +134,8 @@ n_h3_prop <- count_n_h_prop(
 
 print('Odpowiedź:')
 sprintf("Min. wielkość próby dla firm usługowych to: % s", n_h1_prop)
-sprintf("Min. wielkość próby dla firm usługowych to: % s", n_h2_prop)
-sprintf("Min. wielkość próby dla firm usługowych to: % s", n_h3_prop)
+sprintf("Min. wielkość próby dla firm produkcyjno-handlowych to: % s", n_h2_prop)
+sprintf("Min. wielkość próby dla firm z sektora publicznego to: % s", n_h3_prop)
 
 
 #######################################
@@ -213,8 +213,8 @@ n_h3_nprop <- count_n_h_nprop(
 
 print('Odpowiedź:')
 sprintf("Min. wielkość próby dla firm usługowych to: % s", n_h1_nprop)
-sprintf("Min. wielkość próby dla firm usługowych to: % s", n_h2_nprop)
-sprintf("Min. wielkość próby dla firm usługowych to: % s", n_h3_nprop)
+sprintf("Min. wielkość próby dla firm produkcyjno-handlowych to: % s", n_h2_nprop)
+sprintf("Min. wielkość próby dla firm z sektora publicznego to: % s", n_h3_nprop)
 
 
 
